@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Analyst Agent API</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-5">
+                    <h1 class="display-5 mb-3">
+                        <i class="fas fa-flask text-primary me-3"></i>
+                        Test API
+                    </h1>
+                    <p class="lead">
+                        Upload files and test the Data Analyst Agent
+                    </p>
+                    <a href="/" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Back to Documentation
+                    </a>
+                </div>
+
+                <!-- Upload Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-upload me-2"></i>
+                            Upload Files for Analysis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="analysisForm" enctype="multipart/form-data">
+                            <!-- Questions File -->
+                            <div class="mb-4">
+                                <label for="questionsFile" class="form-label">
+                                    <strong>Questions File (Required)</strong>
+                                </label>
+                                <input type="file" class="form-control" id="questionsFile" name="questions.txt" accept=".txt" required>
+                                <div class="form-text">
+                                    Upload a text file containing your analysis questions or tasks
+                                </div>
+                            </div>
+
+                            <!-- Additional Files -->
+                            <div class="mb-4">
+                                <label for="additionalFiles" class="form-label">
+                                    <strong>Additional Files (Optional)</strong>
+                                </label>
+                                <input type="file" class="form-control" id="additionalFiles" multiple>
+                                <div class="form-text">
+                                    Upload CSV data files, images, or other supporting materials
+                                </div>
+                            </div>
+
+                            <!-- Sample Questions -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <strong>Sample Questions</strong>
+                                </label>
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-info w-100" onclick="loadSample1()">
+                                            Wikipedia Analysis
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-outline-info w-100" onclick="loadSample2()">
+                                            Statistical Analysis
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Question Preview -->
+                            <div class="mb-4">
+                                <label for="questionPreview" class="form-label">
+                                    <strong>Question Preview</strong>
+                                </label>
+                                <textarea class="form-control" id="questionPreview" rows="6" placeholder="Upload a questions.txt file or use a sample..."></textarea>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-play me-2"></i>
+                                    Analyze Data
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="card mt-4" id="resultsCard" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Analysis Results
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="loadingSpinner" style="display: none;">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-3">Analyzing data... This may take up to 3 minutes.</p>
+                            </div>
+                        </div>
+                        <div id="results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample questions
+        const sample1 = `Scrape the list of highest grossing films from Wikipedia. It is at the URL:
+https://en.wikipedia.org/wiki/List_of_highest-grossing_films
+
+Answer the following questions and respond with a JSON array of strings containing the answer.
+
+1. How many $2 bn movies were released before 2000?
+2. Which is the earliest film that grossed over $1.5 bn?
+3. What's the correlation between the Rank and Peak?
+4. Draw a scatterplot of Rank and Peak along with a dotted red regression line through it.
+   Return as a base-64 encoded data URI, "data:image/png;base64,iVBORw0KG..." under 100,000 bytes.`;
+
+        const sample2 = `Analyze the uploaded CSV data and respond with a JSON object containing:
+
+{
+  "summary": "Brief description of the dataset",
+  "correlations": "Key correlations found",
+  "visualization": "data:image/png;base64,... (scatterplot of two key variables)"
+}`;
+
+        function loadSample1() {
+            document.getElementById('questionPreview').value = sample1;
+        }
+
+        function loadSample2() {
+            document.getElementById('questionPreview').value = sample2;
+        }
+
+        // Handle file upload for questions
+        document.getElementById('questionsFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('questionPreview').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('analysisForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            
+            // Add questions file
+            const questionsFile = document.getElementById('questionsFile').files[0];
+            if (!questionsFile) {
+                alert('Please upload a questions.txt file');
+                return;
+            }
+            
+            // Create questions file from preview if needed
+            const questionText = document.getElementById('questionPreview').value;
+            if (questionText) {
+                const questionsBlob = new Blob([questionText], { type: 'text/plain' });
+                formData.append('questions.txt', questionsBlob, 'questions.txt');
+            } else {
+                formData.append('questions.txt', questionsFile);
+            }
+            
+            // Add additional files
+            const additionalFiles = document.getElementById('additionalFiles').files;
+            for (let i = 0; i < additionalFiles.length; i++) {
+                const file = additionalFiles[i];
+                formData.append(file.name, file);
+            }
+            
+            // Show loading
+            document.getElementById('resultsCard').style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Submit to API
+            fetch('/api/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                displayResults(data);
+            })
+            .catch(error => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                displayError(error.message);
+            })
+            .finally(() => {
+                document.getElementById('submitBtn').disabled = false;
+            });
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (data.error) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6>Error:</h6>
+                        <pre>${data.error}</pre>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<h6>Analysis Results:</h6>';
+            
+            if (Array.isArray(data)) {
+                html += '<ol>';
+                data.forEach((item, index) => {
+                    if (typeof item === 'string' && item.startsWith('data:image/')) {
+                        html += `<li>
+                            <strong>Visualization:</strong><br>
+                            <img src="${item}" class="img-fluid mt-2" style="max-width: 100%; height: auto;" alt="Generated visualization">
+                        </li>`;
+                    } else {
+                        html += `<li><code>${JSON.stringify(item)}</code></li>`;
+                    }
+                });
+                html += '</ol>';
+            } else if (typeof data === 'object') {
+                html += '<div class="row">';
+                for (const [key, value] of Object.entries(data)) {
+                    html += '<div class="col-md-6 mb-3">';
+                    html += `<strong>${key}:</strong><br>`;
+                    
+                    if (typeof value === 'string' && value.startsWith('data:image/')) {
+                        html += `<img src="${value}" class="img-fluid mt-2" style="max-width: 100%; height: auto;" alt="${key}">`;
+                    } else {
+                        html += `<code>${JSON.stringify(value)}</code>`;
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+            } else {
+                html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function displayError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>Error:</h6>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

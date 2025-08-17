@@ -1,0 +1,120 @@
+/* Custom styles for Data Analyst Agent */
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.code-block {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.result-image {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    margin: 0.5rem 0;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.file-info {
+    font-size: 0.875rem;
+    color: var(--bs-secondary);
+}
+
+.upload-area {
+    border: 2px dashed var(--bs-border-color);
+    border-radius: 0.375rem;
+    padding: 2rem;
+    text-align: center;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.upload-area:hover {
+    border-color: var(--bs-primary);
+}
+
+.upload-area.dragover {
+    border-color: var(--bs-success);
+    background-color: var(--bs-success-bg-subtle);
+}
+
+/* Dark mode compatibility */
+[data-bs-theme="dark"] .code-block {
+    background-color: #1a1a1a;
+}
+
+[data-bs-theme="dark"] .upload-area {
+    background-color: var(--bs-body-bg);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .display-5 {
+        font-size: 1.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Animation for loading states */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Code syntax highlighting */
+pre code {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Button improvements */
+.btn-lg {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+}
+
+/* Alert improvements */
+.alert {
+    border-radius: 0.5rem;
+}
+
+.alert pre {
+    margin-bottom: 0;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
